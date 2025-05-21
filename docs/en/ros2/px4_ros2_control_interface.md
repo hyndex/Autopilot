@@ -409,7 +409,7 @@ _goto_setpoint->update(
 This setpoint type is only supported for fixed-wing vehicles.
 :::
 
-Use the [`px4_ros2::FwLateralLongitudinalSetpointType`](https://auterion.github.io/px4-ros2-interface-lib/classpx4__ros2_1_1FwLateralLongitudinalSetpointType.html) to directly control the lateral and longitudinal dynamics of a fixed-wing vehicle.
+Use the [`px4_ros2::FwLateralLongitudinalSetpointType`](https://auterion.github.io/px4-ros2-interface-lib/classpx4__ros2_1_1FwLateralLongitudinalSetpointType.html) to directly control the lateral and longitudinal dynamics of a fixed-wing vehicle — that is, side-to-side motion (turning/banking) and forward/upward motion (speeding up/climbing) respectively.
 This setpoint is streamed to the PX4 _FwLateralLongitudinalControl_ module, which decouples lateral and longitudinal inputs while ensuring that vehicle limits are respected.
 
 To control the vehicle, at least one lateral **and** one longitudinal setpoint must be provided:
@@ -422,7 +422,7 @@ For a detailed description of the controllable parameters, please refer to messa
 
 ##### Basic Usage
 
-In the simplest case, you can provide only a `course` and an `altitude` setpoint:
+This setpoint type offers multiple update methods, each allowing you to specify an increasing number of setpoints. In the simplest case, you can provide a `course` and an `altitude` setpoint:
 
 ```cpp
 const float altitude_msl = 500.F;
@@ -544,10 +544,10 @@ If you want to control an actuator that does not control the vehicle's motion, b
 
 <Badge type="warning" text="Experimental" />
 
-The [VTOL API](https://auterion.github.io/px4-ros2-interface-lib/classpx4__ros2_1_1Vtol.html) provides the functionality to command a transition.
+The [VTOL API](https://auterion.github.io/px4-ros2-interface-lib/classpx4__ros2_1_1Vtol.html) provides the functionality to command a transition and query the current state of the vehicle.
 This is intended for advanced users.
 
-1. Ensure that both the `TrajectorySetpointType` and the `FwLateralLongitudinalSetpointType` are available to your mode.
+1. Ensure that both the [`TrajectorySetpointType`](https://auterion.github.io/px4-ros2-interface-lib/classpx4__ros2_1_1TrajectorySetpointType.html) and the `FwLateralLongitudinalSetpointType` are available to your mode.
 2. Create an instance of `px4_ros2::VTOL` in the constructor of your mode.
 3. To command a transition, you can use the `toMulticopter()` or `toFixedwing()` methods on your VTOL object to set the desired state.
 4. During transition, send the following combination of setpoints:
@@ -572,6 +572,8 @@ This is intended for advanced users.
    You can optionally pass a deceleration setpoint to `computeAccelerationSetpointDuringTransition()` to be used during back-transitions.
 
 To check the current state of the vehicle, use the `getCurrentState()` method on your `px4_ros2::VTOL` object.
+
+See [this external flight mode implementation](https://github.com/Auterion/px4-ros2-interface-lib/tree/main/examples/cpp/modes/vtol) for a practical example on how to use this API.
 
 ### Controlling an Independent Actuator/Servo
 
