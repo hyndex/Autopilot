@@ -481,16 +481,16 @@ If both altitude and height rate are set, altitude is not controlled.
 :::
 
 ```cpp
-  px4_ros2::FwLateralLongitudinalSetpoint setpoint_s;
+px4_ros2::FwLateralLongitudinalSetpoint setpoint_s;
 
-  setpoint_s.withCourse(0.F);
-  // setpoint_s.withAirspeedDirection(0.2F); // uncontrolled
-  setpoint_s.withLateralAcceleration(2.F); // feedforward
-  //setpoint_s.withAltitude(500.F); // uncontrolled
-  setpoint_s.withHeightRate(2.F);
-  setpoint_s.withEquivalentAirspeed(15.F);
+setpoint_s.withCourse(0.F);
+// setpoint_s.withAirspeedDirection(0.2F); // uncontrolled
+setpoint_s.withLateralAcceleration(2.F); // feedforward
+//setpoint_s.withAltitude(500.F); // uncontrolled
+setpoint_s.withHeightRate(2.F);
+setpoint_s.withEquivalentAirspeed(15.F);
 
-  _fw_lateral_longitudinal_setpoint->update(setpoint_s);
+_fw_lateral_longitudinal_setpoint->update(setpoint_s);
 ```
 
 The diagram below illustrates the interaction between the `FwLateralLongitudinalSetpointType` and PX4 when all inputs are set.
@@ -503,20 +503,20 @@ You can also pass a `FwControlConfiguration` struct along with the setpoint to o
 This is intended for advanced users:
 
 ```cpp
-  px4_ros2::FwLateralLongitudinalSetpoint setpoint_s;
+px4_ros2::FwLateralLongitudinalSetpoint setpoint_s;
 
-  setpoint_s.withAirspeedDirection(0.F);
-  setpoint_s.withLateralAcceleration(2.F); // feedforward
-  setpoint_s.withAltitude(500.F);
-  setpoint_s.withEquivalentAirspeed(15.F);
+setpoint_s.withAirspeedDirection(0.F);
+setpoint_s.withLateralAcceleration(2.F); // feedforward
+setpoint_s.withAltitude(500.F);
+setpoint_s.withEquivalentAirspeed(15.F);
 
-  px4_ros2::FwControlConfiguration config_s;
+px4_ros2::FwControlConfiguration config_s;
 
-  config_s.withTargetClimbRate(3.F);
-  config_s.withMaxAcceleration(5.F);
-  config_s.withThrottleLimits(0.4F, 0.6F);
+config_s.withTargetClimbRate(3.F);
+config_s.withMaxAcceleration(5.F);
+config_s.withThrottleLimits(0.4F, 0.6F);
 
-  _fw_lateral_longitudinal_setpoint->update(setpoint_s, config_s);
+_fw_lateral_longitudinal_setpoint->update(setpoint_s, config_s);
 ```
 
 All configuration fields are defined as `std::optional<float>`.
@@ -553,20 +553,20 @@ This is intended for advanced users.
 4. During transition, send the following combination of setpoints:
 
    ```cpp
-     // Assuming the instance of the px4_ros2::VTOL object is called vtol
+   // Assuming the instance of the px4_ros2::VTOL object is called vtol
 
-     // Send TrajectorySetpointType as follows:
-     Eigen::Vector3f acceleration_sp = vtol.computeAccelerationSetpointDuringTransition();
-     Eigen::Vector3f velocity_sp{NAN, NAN, 0.f};
+   // Send TrajectorySetpointType as follows:
+   Eigen::Vector3f acceleration_sp = vtol.computeAccelerationSetpointDuringTransition();
+   Eigen::Vector3f velocity_sp{NAN, NAN, 0.f};
 
-     _trajectory_setpoint->update(velocity_sp, acceleration_sp);
+   _trajectory_setpoint->update(velocity_sp, acceleration_sp);
 
-     // Send FwLateralLongitudinalSetpointType with lateral input to realign vehicle as desired
+   // Send FwLateralLongitudinalSetpointType with lateral input to realign vehicle as desired
 
-     float course_sp = 0.F; // North
+   float course_sp = 0.F; // North
 
-     _fw_lateral_longitudinal_setpoint->updateWithAltitude(NAN, course_sp)
-    ```
+   _fw_lateral_longitudinal_setpoint->updateWithAltitude(NAN, course_sp)
+   ```
 
    This will ensure that the transition is handled properly within PX4.
    You can optionally pass a deceleration setpoint to `computeAccelerationSetpointDuringTransition()` to be used during back-transitions.
