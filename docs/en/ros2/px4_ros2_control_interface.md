@@ -440,15 +440,15 @@ This is done as follows:
 
   altitude setpoint (set by user) &rarr; height rate setpoint &rarr; pitch angle setpoint and throttle settings.
 
-Alternatively, you can provide only a course and a height rate setpoint:
+Alternatively, you can provide a course and a `height_rate` setpoint:
 
 ```cpp
 const float height_rate = 2.F;
 const float course = 0.F; // due North
-_fw_lateral_longitudinal_setpoint->updateWithHeightRate(altitude_msl, course);
+_fw_lateral_longitudinal_setpoint->updateWithHeightRate(height_rate, course);
 ```
 
-To additionally control the equivalent airspeed or lateral acceleration, you can specify them as the third and fourth arguments, respectively:
+To additionally control the equivalent airspeed or lateral acceleration, you can specify them in `updateWithAltitude()` as the third and fourth arguments, respectively:
 
 ```cpp
 const float altitude_msl = 500.F;
