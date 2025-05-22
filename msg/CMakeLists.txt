@@ -46,9 +46,10 @@ set(msg_files
 	AdcReport.msg
 	Airspeed.msg
 	AirspeedWind.msg
-	AutotuneAttitudeControlStatus.msg
-	ButtonEvent.msg
-	CameraCapture.msg
+        AutotuneAttitudeControlStatus.msg
+        ButtonEvent.msg
+        Buffer128.msg
+        CameraCapture.msg
 	CameraStatus.msg
 	CameraTrigger.msg
 	CanInterfaceStatus.msg
@@ -171,9 +172,12 @@ set(msg_files
 	RateCtrlStatus.msg
 	RcChannels.msg
 	RcParameterMap.msg
-	RoverAttitudeSetpoint.msg
-	RoverAttitudeStatus.msg
-	RoverPositionSetpoint.msg
+        RoverAttitudeSetpoint.msg
+        RoverAttitudeStatus.msg
+        RoverMecanumGuidanceStatus.msg
+        RoverMecanumSetpoint.msg
+        RoverMecanumStatus.msg
+        RoverPositionSetpoint.msg
 	RoverRateSetpoint.msg
 	RoverRateStatus.msg
 	RoverSteeringSetpoint.msg
