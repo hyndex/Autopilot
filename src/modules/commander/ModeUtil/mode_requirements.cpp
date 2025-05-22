@@ -164,7 +164,16 @@ void getModeRequirements(uint8_t vehicle_type, failsafe_flags_s &flags)
 	setRequirement(vehicle_status_s::NAVIGATION_STATE_ORBIT, flags.mode_req_local_position);
 	setRequirement(vehicle_status_s::NAVIGATION_STATE_ORBIT, flags.mode_req_local_alt);
 	setRequirement(vehicle_status_s::NAVIGATION_STATE_ORBIT, flags.mode_req_prevent_arming);
-	setRequirement(vehicle_status_s::NAVIGATION_STATE_ORBIT, flags.mode_req_wind_and_flight_time_compliance);
+        setRequirement(vehicle_status_s::NAVIGATION_STATE_ORBIT, flags.mode_req_wind_and_flight_time_compliance);
+
+       // NAVIGATION_STATE_ROCKET_ASCENT
+       setRequirement(vehicle_status_s::NAVIGATION_STATE_ROCKET_ASCENT, flags.mode_req_other);
+
+       // NAVIGATION_STATE_ROCKET_COAST
+       setRequirement(vehicle_status_s::NAVIGATION_STATE_ROCKET_COAST, flags.mode_req_other);
+
+       // NAVIGATION_STATE_ROCKET_PGNAV
+       setRequirement(vehicle_status_s::NAVIGATION_STATE_ROCKET_PGNAV, flags.mode_req_other);
 
 	// NAVIGATION_STATE_AUTO_VTOL_TAKEOFF
 	setRequirement(vehicle_status_s::NAVIGATION_STATE_AUTO_VTOL_TAKEOFF, flags.mode_req_angular_velocity);

@@ -844,9 +844,21 @@ Commander::handle_command(const vehicle_command_s &cmd)
 							desired_nav_state = vehicle_status_s::NAVIGATION_STATE_AUTO_PRECLAND;
 							break;
 
-						case PX4_CUSTOM_SUB_MODE_EXTERNAL1...PX4_CUSTOM_SUB_MODE_EXTERNAL8:
-							desired_nav_state = vehicle_status_s::NAVIGATION_STATE_EXTERNAL1 + (custom_sub_mode - PX4_CUSTOM_SUB_MODE_EXTERNAL1);
-							break;
+case PX4_CUSTOM_SUB_MODE_EXTERNAL1...PX4_CUSTOM_SUB_MODE_EXTERNAL8:
+desired_nav_state = vehicle_status_s::NAVIGATION_STATE_EXTERNAL1 + (custom_sub_mode - PX4_CUSTOM_SUB_MODE_EXTERNAL1);
+break;
+
+case PX4_CUSTOM_SUB_MODE_ROCKET_ASCENT:
+desired_nav_state = vehicle_status_s::NAVIGATION_STATE_ROCKET_ASCENT;
+break;
+
+case PX4_CUSTOM_SUB_MODE_ROCKET_COAST:
+desired_nav_state = vehicle_status_s::NAVIGATION_STATE_ROCKET_COAST;
+break;
+
+case PX4_CUSTOM_SUB_MODE_ROCKET_PGNAV:
+desired_nav_state = vehicle_status_s::NAVIGATION_STATE_ROCKET_PGNAV;
+break;
 
 						default:
 							main_ret = TRANSITION_DENIED;
