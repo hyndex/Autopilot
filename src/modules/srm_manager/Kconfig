@@ -1,0 +1,5 @@
+menuconfig MODULES_SRM_MANAGER
+    bool "srm_manager"
+    default n
+    ---help---
+        Enable support for srm_manager

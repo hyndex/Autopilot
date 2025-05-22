@@ -1,0 +1,5 @@
+menuconfig MODULES_ROCKET_AVOIDANCE
+    bool "rocket_avoidance"
+    default n
+    ---help---
+        Enable support for rocket_avoidance

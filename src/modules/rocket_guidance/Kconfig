@@ -1,0 +1,5 @@
+menuconfig MODULES_ROCKET_GUIDANCE
+    bool "rocket_guidance"
+    default n
+    ---help---
+        Enable support for rocket_guidance

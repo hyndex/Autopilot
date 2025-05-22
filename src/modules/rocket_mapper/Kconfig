@@ -1,0 +1,5 @@
+menuconfig MODULES_ROCKET_MAPPER
+    bool "rocket_mapper"
+    default n
+    ---help---
+        Enable support for rocket_mapper

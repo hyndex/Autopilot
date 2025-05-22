@@ -33,4 +33,10 @@ param set-default CA_ROTOR3_PX -1
 param set-default CA_ROTOR3_PY 1
 param set-default CA_ROTOR3_KM -0.05
 
-# TODO: start rocket-specific modules
+# Rocket specific modules
+mmwave_radar start
+srm_manager start
+rocket_guidance start
+rocket_mapper start
+rocket_avoidance start
+rocket_planner start
