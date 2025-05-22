@@ -33,11 +33,12 @@
 px4_add_module(
 	MODULE modules__payload_deliverer
 	MAIN payload_deliverer
-	SRCS
-		payload_deliverer.cpp
-		gripper.cpp
-	MODULE_CONFIG
-		module.yaml
+        SRCS
+                payload_deliverer.cpp
+                gripper.cpp
+                payload_deliverer_params.c
+        MODULE_CONFIG
+                module.yaml
 	COMPILE_FLAGS
 		#-DDEBUG_BUILD
 	DEPENDS

@@ -39,11 +39,12 @@ add_subdirectory(DifferentialPosControl)
 px4_add_module(
 	MODULE modules__rover_differential
 	MAIN rover_differential
-	SRCS
-		RoverDifferential.cpp
-		RoverDifferential.hpp
-	DEPENDS
-		DifferentialRateControl
+        SRCS
+                RoverDifferential.cpp
+                RoverDifferential.hpp
+                rover_differential_params.c
+        DEPENDS
+                DifferentialRateControl
 		DifferentialAttControl
 		DifferentialVelControl
 		DifferentialPosControl

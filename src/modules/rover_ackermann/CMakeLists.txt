@@ -39,11 +39,12 @@ add_subdirectory(AckermannPosControl)
 px4_add_module(
 	MODULE modules__rover_ackermann
 	MAIN rover_ackermann
-	SRCS
-		RoverAckermann.cpp
-		RoverAckermann.hpp
-	DEPENDS
-		AckermannRateControl
+        SRCS
+                RoverAckermann.cpp
+                RoverAckermann.hpp
+                rover_ackermann_params.c
+        DEPENDS
+                AckermannRateControl
 		AckermannAttControl
 		AckermannVelControl
 		AckermannPosControl
