@@ -1,0 +1,5 @@
+menuconfig MODULES_MMWAVE_RADAR
+    bool "mmwave_radar"
+    default n
+    ---help---
+        Enable support for mmwave_radar
