@@ -96,7 +96,8 @@ if(CONFIG_MODULES_MC_RATE_CONTROL)
 		12001_octo_cox
 
 		# [14000, 14999] MC with tilt
-		14001_generic_mc_with_tilt
+                14001_generic_mc_with_tilt
+                14002_rocket_fins
 
 		16001_helicopter
 
