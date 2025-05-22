@@ -53,3 +53,19 @@ jobs:
           # given the stateless nature of docker images
           ./Tools/setup/ubuntu.sh
           make quick_check
+
+      - name: Compile Rocket Modules
+        run: |
+          make px4_sitl_default rocket_avoidance rocket_guidance rocket_mapper rocket_planner
+
+      - name: Run Selected Unit Tests
+        run: |
+          make tests
+          cd build/px4_sitl_test
+          ctest -R "(test_pn|test_vo|test_fsm)" --output-on-failure
+          cd ../../
+
+      - name: Generate Coverage Report
+        run: |
+          pip install gcovr
+          gcovr -r . --fail-under-line 80
