@@ -157,3 +157,26 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: mavsdk
           file: coverage/lcov.info
+
+  rocket_sil:
+    name: Rocket SIL
+    runs-on: ubuntu-latest
+    container:
+      image: px4io/px4-dev-simulation-focal:2021-09-08
+      options: --privileged --ulimit core=-1 --security-opt seccomp=unconfined
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build PX4 for rocket world
+        run: make px4_sitl_default
+
+      - name: Run px4-sitl with rocket.world
+        env:
+          PX4_SITL_WORLD: rocket
+          HEADLESS: 1
+        run: |
+          Tools/simulation/gazebo-classic/sitl_run.sh build/px4_sitl_default/bin/px4 none iris rocket $(pwd) build/px4_sitl_default &
+          sleep 30
+          pkill px4 || true

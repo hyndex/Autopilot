@@ -55,3 +55,9 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
           file: coverage/lcov.info
+
+      - name: Coverage Threshold (gcovr)
+        if: matrix.check == 'tests_coverage'
+        run: |
+          pip install gcovr
+          gcovr -r . --fail-under-line 80
