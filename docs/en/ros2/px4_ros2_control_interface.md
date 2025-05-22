@@ -409,7 +409,7 @@ _goto_setpoint->update(
 This setpoint type is only supported for fixed-wing vehicles.
 :::
 
-Use the [`px4_ros2::FwLateralLongitudinalSetpointType`](https://auterion.github.io/px4-ros2-interface-lib/classpx4__ros2_1_1FwLateralLongitudinalSetpointType.html) to directly control the lateral and longitudinal dynamics of a fixed-wing vehicle — that is, side-to-side motion (turning/banking) and forward/upward motion (speeding up/climbing) respectively.
+Use the [`px4_ros2::FwLateralLongitudinalSetpointType`](https://auterion.github.io/px4-ros2-interface-lib/classpx4__ros2_1_1FwLateralLongitudinalSetpointType.html) to directly control the lateral and longitudinal dynamics of a fixed-wing vehicle — that is, side-to-side motion (turning/banking) and forward/vertical motion (speeding up and climbing/descending), respectively.
 This setpoint is streamed to the PX4 _FwLateralLongitudinalControl_ module, which decouples lateral and longitudinal inputs while ensuring that vehicle limits are respected.
 
 To control the vehicle, at least one lateral **and** one longitudinal setpoint must be provided:
@@ -422,7 +422,9 @@ For a detailed description of the controllable parameters, please refer to messa
 
 ##### Basic Usage
 
-This setpoint type offers multiple update methods, each allowing you to specify an increasing number of setpoints. In the simplest case, you can provide a `course` and an `altitude` setpoint:
+This type has a number of update methods, each allowing you to specify an increasing number of setpoints.
+
+The simplest method is `updateWithAltitude()`, which allows you to specify a `course` and `altitude` target setpoint:
 
 ```cpp
 const float altitude_msl = 500.F;
@@ -430,7 +432,8 @@ const float course = 0.F; // due North
 _fw_lateral_longitudinal_setpoint->updateWithAltitude(altitude_msl, course);
 ```
 
-From these setpoints, PX4 will compute the required _roll angle_, _pitch angle_ and _throttle_ setpoints that are sent to lower level controllers.
+PX4 uses the setpoints to compute the _roll angle_, _pitch angle_ and _throttle_ setpoints that are sent to lower level controllers.
+Note that the commanded flight is expected to be relatively gentle/unaggressive when using this method.
 This is done as follows:
 
 - Lateral control output:
@@ -440,7 +443,7 @@ This is done as follows:
 
   altitude setpoint (set by user) &rarr; height rate setpoint &rarr; pitch angle setpoint and throttle settings.
 
-Alternatively, you can provide a course and a `height_rate` setpoint:
+The `updateWithHeightRate()` method allows you to set a target `course` and `height_rate` (this is useful if the speed of ascent or descent matters, or needs to be dynamically controlled):
 
 ```cpp
 const float height_rate = 2.F;
@@ -448,7 +451,7 @@ const float course = 0.F; // due North
 _fw_lateral_longitudinal_setpoint->updateWithHeightRate(height_rate, course);
 ```
 
-To additionally control the equivalent airspeed or lateral acceleration, you can specify them in `updateWithAltitude()` as the third and fourth arguments, respectively:
+The `updateWithAltitude()` method allows you to additionally control the equivalent airspeed or lateral acceleration by specifying them as the third and fourth arguments, respectively:
 
 ```cpp
 const float altitude_msl = 500.F;
