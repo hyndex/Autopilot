@@ -2,7 +2,7 @@
 #include <px4_platform_common/module_params.h>
 #include <px4_platform_common/px4_work_queue/ScheduledWorkItem.hpp>
 #include <uORB/Subscription.hpp>
-#include <uORB/topics/obstacle_distance.h>
+#include <uORB/topics/obstacle_map.h>
 
 using namespace time_literals;
 
@@ -17,7 +17,8 @@ public:
     void Run() override {
         if (should_exit()) { ScheduleClear(); exit_and_cleanup(); return; }
         if (_parameter_update_sub.updated()) { parameter_update_s p; _parameter_update_sub.copy(&p); updateParams(); }
-        obstacle_distance_s dist; _dist_sub.update(&dist);
+        obstacle_map_s map;
+        _map_sub.update(&map);
     }
 
     int print_status() override { PX4_INFO("running"); return 0; }
@@ -46,7 +47,7 @@ public:
 
 private:
     uORB::Subscription _parameter_update_sub{ORB_ID(parameter_update)};
-    uORB::Subscription _dist_sub{ORB_ID(obstacle_distance)};
+    uORB::Subscription _map_sub{ORB_ID(obstacle_map)};
 
     DEFINE_PARAMETERS(
         (ParamFloat<px4::params::MPC_LAND_SPEED>) _param_dummy

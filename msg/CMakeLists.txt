@@ -139,8 +139,10 @@ set(msg_files
 	NavigatorStatus.msg
 	NormalizedUnsignedSetpoint.msg
 	NpfgStatus.msg
-	ObstacleDistance.msg
-	OffboardControlMode.msg
+        ObstacleDistance.msg
+        RadarPoints.msg
+        ObstacleMap.msg
+        OffboardControlMode.msg
 	OnboardComputerStatus.msg
 	OpenDroneIdArmStatus.msg
 	OpenDroneIdOperatorId.msg

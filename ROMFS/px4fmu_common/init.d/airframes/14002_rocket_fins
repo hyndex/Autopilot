@@ -34,9 +34,13 @@ param set-default CA_ROTOR3_PY 1
 param set-default CA_ROTOR3_KM -0.05
 
 # Rocket specific modules
+param set-default COM_POS_FS_DELAY 5
+param set-default COM_OBS_AVOID 1
+
+# Start modules in the required order
 mmwave_radar start
-srm_manager start
-rocket_guidance start
 rocket_mapper start
 rocket_avoidance start
+rocket_guidance start
 rocket_planner start
+srm_manager start

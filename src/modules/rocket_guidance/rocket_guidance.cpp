@@ -3,6 +3,7 @@
 #include <px4_platform_common/px4_work_queue/ScheduledWorkItem.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/vehicle_attitude.h>
+#include <uORB/topics/obstacle_map.h>
 
 using namespace time_literals;
 
@@ -16,8 +17,16 @@ public:
 
     void Run() override {
         if (should_exit()) { ScheduleClear(); exit_and_cleanup(); return; }
-        if (_parameter_update_sub.updated()) { parameter_update_s p; _parameter_update_sub.copy(&p); updateParams(); }
-        vehicle_attitude_s att; _att_sub.update(&att);
+        if (_parameter_update_sub.updated()) {
+            parameter_update_s p;
+            _parameter_update_sub.copy(&p);
+            updateParams();
+        }
+        vehicle_attitude_s att;
+        _att_sub.update(&att);
+
+        obstacle_map_s map;
+        _map_sub.update(&map);
     }
 
     int print_status() override { PX4_INFO("running"); return 0; }
@@ -47,6 +56,7 @@ public:
 private:
     uORB::Subscription _parameter_update_sub{ORB_ID(parameter_update)};
     uORB::Subscription _att_sub{ORB_ID(vehicle_attitude)};
+    uORB::Subscription _map_sub{ORB_ID(obstacle_map)};
 
     DEFINE_PARAMETERS(
         (ParamFloat<px4::params::MC_ROLL_P>) _param_dummy

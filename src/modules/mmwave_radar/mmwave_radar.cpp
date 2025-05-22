@@ -5,6 +5,7 @@
 #include <uORB/Publication.hpp>
 #include <uORB/topics/vehicle_command.h>
 #include <uORB/topics/vehicle_odometry.h>
+#include <uORB/topics/radar_points.h>
 
 using namespace time_literals;
 
@@ -19,7 +20,16 @@ public:
     void Run() override {
         if (should_exit()) { ScheduleClear(); exit_and_cleanup(); return; }
         if (_parameter_update_sub.updated()) { parameter_update_s p; _parameter_update_sub.copy(&p); updateParams(); }
-        vehicle_command_s cmd; if (_cmd_sub.update(&cmd)) { vehicle_odometry_s odom{}; odom.timestamp = hrt_absolute_time(); _odom_pub.publish(odom); }
+        vehicle_command_s cmd;
+        if (_cmd_sub.update(&cmd)) {
+            vehicle_odometry_s odom{};
+            odom.timestamp = hrt_absolute_time();
+            _odom_pub.publish(odom);
+
+            radar_points_s rp{};
+            rp.timestamp = hrt_absolute_time();
+            _radar_pub.publish(rp);
+        }
     }
 
     int print_status() override { PX4_INFO("running"); return 0; }
@@ -50,6 +60,7 @@ private:
     uORB::Subscription _parameter_update_sub{ORB_ID(parameter_update)};
     uORB::Subscription _cmd_sub{ORB_ID(vehicle_command)};
     uORB::Publication<vehicle_odometry_s> _odom_pub{ORB_ID(vehicle_odometry)};
+    uORB::Publication<radar_points_s> _radar_pub{ORB_ID(radar_points)};
 
     DEFINE_PARAMETERS(
         (ParamFloat<px4::params::NAV_ACC_RAD>) _param_dummy
