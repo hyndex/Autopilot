@@ -70,9 +70,12 @@ enum PX4_CUSTOM_SUB_MODE_AUTO {
 	PX4_CUSTOM_SUB_MODE_EXTERNAL3,
 	PX4_CUSTOM_SUB_MODE_EXTERNAL4,
 	PX4_CUSTOM_SUB_MODE_EXTERNAL5,
-	PX4_CUSTOM_SUB_MODE_EXTERNAL6,
-	PX4_CUSTOM_SUB_MODE_EXTERNAL7,
-	PX4_CUSTOM_SUB_MODE_EXTERNAL8,
+        PX4_CUSTOM_SUB_MODE_EXTERNAL6,
+        PX4_CUSTOM_SUB_MODE_EXTERNAL7,
+        PX4_CUSTOM_SUB_MODE_EXTERNAL8,
+       PX4_CUSTOM_SUB_MODE_ROCKET_ASCENT,
+       PX4_CUSTOM_SUB_MODE_ROCKET_COAST,
+       PX4_CUSTOM_SUB_MODE_ROCKET_PGNAV,
 };
 
 enum PX4_CUSTOM_SUB_MODE_POSCTL {
@@ -222,11 +225,26 @@ static inline union px4_custom_mode get_px4_custom_mode(uint8_t nav_state)
 		custom_mode.sub_mode = PX4_CUSTOM_SUB_MODE_EXTERNAL7;
 		break;
 
-	case vehicle_status_s::NAVIGATION_STATE_EXTERNAL8:
-		custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
-		custom_mode.sub_mode = PX4_CUSTOM_SUB_MODE_EXTERNAL8;
-		break;
-	}
+        case vehicle_status_s::NAVIGATION_STATE_EXTERNAL8:
+                custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
+                custom_mode.sub_mode = PX4_CUSTOM_SUB_MODE_EXTERNAL8;
+                break;
+
+       case vehicle_status_s::NAVIGATION_STATE_ROCKET_ASCENT:
+               custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
+               custom_mode.sub_mode = PX4_CUSTOM_SUB_MODE_ROCKET_ASCENT;
+               break;
+
+       case vehicle_status_s::NAVIGATION_STATE_ROCKET_COAST:
+               custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
+               custom_mode.sub_mode = PX4_CUSTOM_SUB_MODE_ROCKET_COAST;
+               break;
+
+       case vehicle_status_s::NAVIGATION_STATE_ROCKET_PGNAV:
+               custom_mode.main_mode = PX4_CUSTOM_MAIN_MODE_AUTO;
+               custom_mode.sub_mode = PX4_CUSTOM_SUB_MODE_ROCKET_PGNAV;
+               break;
+        }
 
 	return custom_mode;
 }
