@@ -39,11 +39,12 @@ add_subdirectory(MecanumPosControl)
 px4_add_module(
 	MODULE modules__rover_mecanum
 	MAIN rover_mecanum
-	SRCS
-		RoverMecanum.cpp
-		RoverMecanum.hpp
-	DEPENDS
-		MecanumRateControl
+        SRCS
+                RoverMecanum.cpp
+                RoverMecanum.hpp
+                rover_mecanum_params.c
+        DEPENDS
+                MecanumRateControl
 		MecanumAttControl
 		MecanumVelControl
 		MecanumPosControl
