@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# @name Rocket with Fins
+#
+# @type Rocket
+# @class Rocket
+#
+# @maintainer Lorenz Meier <lorenz@px4.io>
+#
+
+. ${R}etc/init.d/rc.mc_defaults
+
+# Parameters
+param set-default PWM_MAIN_RATE 400
+param set-default IMU_INTEG_RATE 8000
+
+# Use custom mixer
+set MIXER rocket_fins.main.mix
+
+# Airframe parameter defaults version
+set PARAM_DEFAULTS_VER 1
+
+# Square quadrotor X PX4 numbering
+param set-default CA_ROTOR_COUNT 4
+param set-default CA_ROTOR0_PX 1
+param set-default CA_ROTOR0_PY 1
+param set-default CA_ROTOR1_PX -1
+param set-default CA_ROTOR1_PY -1
+param set-default CA_ROTOR2_PX 1
+param set-default CA_ROTOR2_PY -1
+param set-default CA_ROTOR2_KM -0.05
+param set-default CA_ROTOR3_PX -1
+param set-default CA_ROTOR3_PY 1
+param set-default CA_ROTOR3_KM -0.05
+
+# TODO: start rocket-specific modules
