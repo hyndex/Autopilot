@@ -127,99 +127,96 @@ void Batmon::RunImpl()
 	uint16_t result;
 
 	// Read data from sensor.
-	battery_status_s new_report = {};
-
-	new_report.id = 1;
-
-	// Set time of reading.
-	new_report.timestamp = hrt_absolute_time();
-
-	new_report.connected = true;
+	battery_status_s battery_status{};
+	battery_status.connected = true;
+	battery_status.id = 1;
 
 	ret |= _interface->read_word(BATT_SMBUS_VOLTAGE, result);
 
 	ret |= get_cell_voltages();
 
 	for (int i = 0; i < _cell_count; i++) {
-		new_report.voltage_cell_v[i] = _cell_voltages[i];
+		battery_status.voltage_cell_v[i] = _cell_voltages[i];
 	}
 
 	// Convert millivolts to volts.
-	new_report.voltage_v = ((float)result) / 1000.0f;
+	battery_status.voltage_v = ((float)result) / 1000.0f;
 
 	// Read current.
 	ret |= _interface->read_word(BATT_SMBUS_CURRENT, result);
 
-	new_report.current_a = (-1.0f * ((float)(*(int16_t *)&result)) / 1000.0f);
+	battery_status.current_a = (-1.0f * ((float)(*(int16_t *)&result)) / 1000.0f);
 
 	// Read average current.
 	ret |= _interface->read_word(BATT_SMBUS_AVERAGE_CURRENT, result);
 
 	float average_current = (-1.0f * ((float)(*(int16_t *)&result)) / 1000.0f);
 
-	new_report.current_average_a = average_current;
+	battery_status.current_average_a = average_current;
 
 	// Read run time to empty (minutes).
 	ret |= _interface->read_word(BATT_SMBUS_RUN_TIME_TO_EMPTY, result);
-	new_report.time_remaining_s = result * 60;
+	battery_status.time_remaining_s = result * 60;
 
 	// Read average time to empty (minutes).
 	ret |= _interface->read_word(BATT_SMBUS_AVERAGE_TIME_TO_EMPTY, result);
-	new_report.average_time_to_empty = result;
+	battery_status.average_time_to_empty = result;
 
 	// Read remaining capacity.
 	ret |= _interface->read_word(BATT_SMBUS_REMAINING_CAPACITY, result);
 
 	// Calculate total discharged amount in mah.
-	new_report.discharged_mah = _batt_startup_capacity - (float)result;
+	battery_status.discharged_mah = _batt_startup_capacity - (float)result;
 
 	// Read Relative SOC.
 	ret |= _interface->read_word(BATT_SMBUS_RELATIVE_SOC, result);
 
 	// Normalize 0.0 to 1.0
-	new_report.remaining = (float)result / 100.0f;
+	battery_status.remaining = (float)result / 100.0f;
 
 	// Read Max Error
 	//ret |= _interface->read_word(BATT_SMBUS_MAX_ERROR, result); //TODO: to be implemented
-	//new_report.max_error = result;
+	//battery_status.max_error = result;
 
 	// Read battery temperature and covert to Celsius.
 	ret |= _interface->read_word(BATT_SMBUS_TEMP, result);
-	new_report.temperature = ((float)result / 10.0f) + atmosphere::kAbsoluteNullCelsius;
+	battery_status.temperature = ((float)result / 10.0f) + atmosphere::kAbsoluteNullCelsius;
 
 	// Only publish if no errors.
 	if (ret == PX4_OK) {
-		new_report.capacity = _batt_capacity;
-		new_report.cycle_count = _cycle_count;
-		new_report.serial_number = _serial_number;
-		new_report.max_cell_voltage_delta = _max_cell_voltage_delta;
-		new_report.cell_count = _cell_count;
-		new_report.state_of_health = _state_of_health;
+		battery_status.capacity = _batt_capacity;
+		battery_status.cycle_count = _cycle_count;
+		battery_status.cell_count = _cell_count;
+		battery_status.state_of_health = _state_of_health;
 
 		// TODO: This critical setting should be set with BMS info or through a paramter
 		// Setting a hard coded BATT_CELL_VOLTAGE_THRESHOLD_FAILED may not be appropriate
 		//if (_lifetime_max_delta_cell_voltage > BATT_CELL_VOLTAGE_THRESHOLD_FAILED) {
 		//	new_report.warning = battery_status_s::WARNING_CRITICAL;
 
-		if (new_report.remaining > _low_thr) {
-			new_report.warning = battery_status_s::WARNING_NONE;
+		if (battery_status.remaining > _low_thr) {
+			battery_status.warning = battery_status_s::WARNING_NONE;
 
-		} else if (new_report.remaining > _crit_thr) {
-			new_report.warning = battery_status_s::WARNING_LOW;
+		} else if (battery_status.remaining > _crit_thr) {
+			battery_status.warning = battery_status_s::WARNING_LOW;
 
-		} else if (new_report.remaining > _emergency_thr) {
-			new_report.warning = battery_status_s::WARNING_CRITICAL;
+		} else if (battery_status.remaining > _emergency_thr) {
+			battery_status.warning = battery_status_s::WARNING_CRITICAL;
 
 		} else {
-			new_report.warning = battery_status_s::WARNING_EMERGENCY;
+			battery_status.warning = battery_status_s::WARNING_EMERGENCY;
 		}
 
-		new_report.interface_error = perf_event_count(_interface->_interface_errors);
+		battery_status.interface_error = perf_event_count(_interface->_interface_errors);
 
+		battery_status.timestamp = hrt_absolute_time();
 		int instance = 0;
-		orb_publish_auto(ORB_ID(battery_status), &_batt_topic, &new_report, &instance);
+		orb_publish_auto(ORB_ID(battery_status), &_battery_status_topic, &battery_status, &instance);
 
-		_last_report = new_report;
+		battery_info_s battery_info{};
+		battery_info.id = battery_status.id;
+		itoa(_serial_number, battery_info.serial_number, 10);
+		orb_publish_auto(ORB_ID(battery_info), &_battery_info_topic, &battery_info, &instance);
 	}
 }
 
@@ -283,10 +280,6 @@ int Batmon::get_cell_voltages()
 		_min_cell_voltage = math::min(_min_cell_voltage, _cell_voltages[i]);
 		max_cell_voltage = math::max(max_cell_voltage, _cell_voltages[i]);
 	}
-
-	// Calculate the max difference between the min and max cells with complementary filter.
-	_max_cell_voltage_delta = (0.5f * (max_cell_voltage - _min_cell_voltage)) +
-				  (0.5f * _last_report.max_cell_voltage_delta);
 
 	return ret;
 }

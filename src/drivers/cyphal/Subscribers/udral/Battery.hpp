@@ -152,8 +152,6 @@ public:
 				}
 			}
 
-			bat_status.max_cell_voltage_delta = voltage_cell_max - voltage_cell_min; // Current delta or max delta over time?
-
 		} else if (receive.metadata.port_id == _parameters_sub._canard_sub.port_id) {
 			reg_udral_service_battery_Parameters_0_3 parameters {};
 			size_t parameters_size_in_bytes = receive.payload_size;

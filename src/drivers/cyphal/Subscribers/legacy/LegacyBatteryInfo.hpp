@@ -110,8 +110,6 @@ public:
 		 * max_error
 		 * interface_error
 		 * voltage_cell_v
-		 * max_cell_voltage_delta
-		 * is_powering_off
 		 * warning
 		 */
 

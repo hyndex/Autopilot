@@ -27,9 +27,7 @@ uint8 id					# ID number of a battery. Should be unique and consistent for the l
 uint16 interface_error				# interface error counter
 
 float32[14] voltage_cell_v			# Battery individual cell voltages, 0 if unknown
-float32 max_cell_voltage_delta			# Max difference between individual cell voltages
 
-bool is_powering_off				# Power off event imminent indication, false if unknown
 bool is_required				# Set if the battery is explicitly required before arming
 
 

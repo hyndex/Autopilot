@@ -77,7 +77,8 @@ BATT_SMBUS::BATT_SMBUS(const I2CSPIDriverConfig &config, SMBus *interface) :
 
 BATT_SMBUS::~BATT_SMBUS()
 {
-	orb_unadvertise(_batt_topic);
+	orb_unadvertise(_battery_info_topic);
+	orb_unadvertise(_battery_status_topic);
 	perf_free(_cycle);
 
 	if (_interface != nullptr) {
@@ -96,7 +97,7 @@ void BATT_SMBUS::RunImpl()
 	uint16_t result;
 
 	// Read data from sensor.
-	battery_status_s new_report = {};
+	battery_status_s new_report{};
 
 	// TODO(hyonlim): this driver should support multiple SMBUS going forward.
 	new_report.id = 1;
@@ -165,8 +166,6 @@ void BATT_SMBUS::RunImpl()
 	if (ret == PX4_OK) {
 		new_report.capacity = _batt_capacity;
 		new_report.cycle_count = _cycle_count;
-		new_report.serial_number = _serial_number;
-		new_report.max_cell_voltage_delta = _max_cell_voltage_delta;
 		new_report.cell_count = _cell_count;
 		new_report.state_of_health = _state_of_health;
 
@@ -190,7 +189,7 @@ void BATT_SMBUS::RunImpl()
 		new_report.interface_error = perf_event_count(_interface->_interface_errors);
 
 		int instance = 0;
-		orb_publish_auto(ORB_ID(battery_status), &_batt_topic, &new_report, &instance);
+		orb_publish_auto(ORB_ID(battery_status), &_battery_status_topic, &new_report, &instance);
 
 		_last_report = new_report;
 	}
@@ -270,10 +269,6 @@ int BATT_SMBUS::get_cell_voltages()
 		_min_cell_voltage = math::min(_min_cell_voltage, _cell_voltages[i]);
 		max_cell_voltage = math::max(max_cell_voltage, _cell_voltages[i]);
 	}
-
-	// Calculate the max difference between the min and max cells with complementary filter.
-	_max_cell_voltage_delta = (0.5f * (max_cell_voltage - _min_cell_voltage)) +
-				  (0.5f * _last_report.max_cell_voltage_delta);
 
 	return ret;
 }

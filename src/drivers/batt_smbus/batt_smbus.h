@@ -52,6 +52,7 @@
 #include <px4_platform_common/param.h>
 #include <px4_platform_common/getopt.h>
 #include <px4_platform_common/i2c_spi_buses.h>
+#include <uORB/topics/battery_info.h>
 #include <uORB/topics/battery_status.h>
 
 #include <board_config.h>
@@ -232,8 +233,6 @@ private:
 	static const uint8_t MAX_NUM_OF_CELLS = 7;
 	float _cell_voltages[MAX_NUM_OF_CELLS] {};
 
-	float _max_cell_voltage_delta{0};
-
 	float _min_cell_voltage{0};
 
 	float _pack_power{0};
@@ -242,8 +241,8 @@ private:
 	/** @param _last_report Last published report, used for test(). */
 	battery_status_s _last_report{};
 
-	/** @param _batt_topic uORB battery topic. */
-	orb_advert_t _batt_topic{nullptr};
+	orb_advert_t _battery_info_topic{nullptr};
+	orb_advert_t _battery_status_topic{nullptr};
 
 	/** @param _cell_count Number of series cell. */
 	uint8_t _cell_count{0};

@@ -86,15 +86,9 @@ public:
 	};
 
 private:
-
-	float _cell_voltages[MAX_CELL_COUNT] = {};
-
-	float _max_cell_voltage_delta{0};
+	float _cell_voltages[MAX_CELL_COUNT] {};
 
 	float _min_cell_voltage{0};
-
-	/** @param _last_report Last published report, used finding v deltas */
-	battery_status_s _last_report{};
 
 	void custom_method(const BusCLIArguments &cli) override;
 
@@ -110,5 +104,4 @@ private:
 
 	/** @param _low_thr Low battery threshold param. */
 	float _low_thr{0.f};
-
 };

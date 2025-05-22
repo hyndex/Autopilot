@@ -45,6 +45,7 @@
 
 #include <px4_platform_common/i2c_spi_buses.h>
 #include <lib/drivers/smbus/SMBus.hpp>
+#include <uORB/topics/battery_info.h>
 #include <uORB/topics/battery_status.h>
 #include <px4_platform_common/param.h>
 #include <lib/atmosphere/atmosphere.h>
@@ -66,7 +67,7 @@ public:
 
 	friend SMBus;
 
-	int populate_smbus_data(battery_status_s &msg);
+	int populate_smbus_data(battery_status_s &battery_status, battery_info_s &battery_info);
 
 	virtual void RunImpl(); // Can be overridden by derived implimentation
 
@@ -136,8 +137,8 @@ protected:
 
 	perf_counter_t _cycle{perf_alloc(PC_ELAPSED, "batmon_cycle")}; // TODO
 
-	/** @param _batt_topic uORB battery topic. */
-	orb_advert_t _batt_topic{nullptr};
+	orb_advert_t _battery_info_topic{nullptr};
+	orb_advert_t _battery_status_topic{nullptr};
 
 	/** @param _cell_count Number of series cell (retrieved from cell_count PX4 params) */
 	uint8_t _cell_count{0};
@@ -173,16 +174,19 @@ SMBUS_SBS_BaseClass<T>::SMBUS_SBS_BaseClass(const I2CSPIDriverConfig &config, SM
 	I2CSPIDriver<T>(config),
 	_interface(interface)
 {
-	battery_status_s new_report = {};
-	int SBS_instance_number = 0;
-	_batt_topic = orb_advertise_multi(ORB_ID(battery_status), &new_report, &SBS_instance_number);
+	battery_info_s battery_info{};
+	battery_status_s battery_status{};
+	int instance = 0;
+	_battery_info_topic = orb_advertise_multi(ORB_ID(battery_info), &battery_info, &instance);
+	_battery_status_topic = orb_advertise_multi(ORB_ID(battery_status), &battery_status, &instance);
 	_interface->init();
 }
 
 template<class T>
 SMBUS_SBS_BaseClass<T>::~SMBUS_SBS_BaseClass()
 {
-	orb_unadvertise(_batt_topic);
+	orb_unadvertise(_battery_info_topic);
+	orb_unadvertise(_battery_status_topic);
 	perf_free(_cycle); // TODO
 
 	if (_interface != nullptr) {
@@ -251,73 +255,62 @@ int SMBUS_SBS_BaseClass<T>::get_startup_info()
 }
 
 template<class T>
-int SMBUS_SBS_BaseClass<T>::populate_smbus_data(battery_status_s &data)
+int SMBUS_SBS_BaseClass<T>::populate_smbus_data(battery_status_s &battery_status, battery_info_s &battery_info)
 {
-
 	// Temporary variable for storing SMBUS reads.
 	uint16_t result;
 
 	int ret = _interface->read_word(BATT_SMBUS_VOLTAGE, result);
 
 	// Convert millivolts to volts.
-	data.voltage_v = ((float)result) * 0.001f;
+	battery_status.voltage_v = ((float)result) * 0.001f;
 
 	// Read current.
 	ret |= _interface->read_word(BATT_SMBUS_CURRENT, result);
 
-	data.current_a = (-1.0f * ((float)(*(int16_t *)&result)) * 0.001f);
+	battery_status.current_a = (-1.0f * ((float)(*(int16_t *)&result)) * 0.001f);
 
 	// Read remaining capacity.
 	ret |= _interface->read_word(BATT_SMBUS_RELATIVE_SOC, result);
-	data.remaining = (float)result * 0.01f;
+	battery_status.remaining = (float)result * 0.01f;
 
 	// Read remaining capacity.
 	ret |= _interface->read_word(BATT_SMBUS_REMAINING_CAPACITY, result);
-	data.discharged_mah = _batt_startup_capacity - result;
+	battery_status.discharged_mah = _batt_startup_capacity - result;
 
 	// Read full capacity.
 	ret |= _interface->read_word(BATT_SMBUS_FULL_CHARGE_CAPACITY, result);
-	data.capacity = result;
+	battery_status.capacity = result;
 
 	// Read cycle count.
 	ret |= _interface->read_word(BATT_SMBUS_CYCLE_COUNT, result);
-	data.cycle_count = result;
+	battery_status.cycle_count = result;
 
 	// Read serial number.
 	ret |= _interface->read_word(BATT_SMBUS_SERIAL_NUMBER, result);
-	data.serial_number = result;
+	itoa(result, battery_info.serial_number, 10);
 
 	// Read battery temperature and covert to Celsius.
 	ret |= _interface->read_word(BATT_SMBUS_TEMP, result);
-	data.temperature = ((float)result * 0.1f) + atmosphere::kAbsoluteNullCelsius;
+	battery_status.temperature = ((float)result * 0.1f) + atmosphere::kAbsoluteNullCelsius;
 
 	return ret;
-
 }
 
 template<class T>
 void SMBUS_SBS_BaseClass<T>::RunImpl()
 {
+	battery_status_s battery_status{};
+	battery_status.connected = true;
+	battery_status.id = 1;
+	battery_status.cell_count = _cell_count;
 
-	// Get the current time.
-	uint64_t now = hrt_absolute_time();
+	battery_info_s battery_info{};
+	battery_info.id = battery_status.id;
 
-	// Read data from sensor.
-	battery_status_s new_report = {};
-
-	new_report.id = 1;
-
-	// Set time of reading.
-	new_report.timestamp = now;
-
-	new_report.connected = true;
-
-	int ret = populate_smbus_data(new_report);
-
-	new_report.cell_count = _cell_count;
-
-	// Only publish if no errors.
-	if (!ret) {
-		orb_publish(ORB_ID(battery_status), _batt_topic, &new_report);
+	if (!populate_smbus_data(battery_status, battery_info)) {
+		battery_status.timestamp = battery_info.timestamp = hrt_absolute_time();
+		orb_publish(ORB_ID(battery_status), _battery_status_topic, &battery_status);
+		orb_publish(ORB_ID(battery_info), _battery_info_topic, &battery_info);
 	}
 }

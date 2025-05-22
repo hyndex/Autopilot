@@ -125,8 +125,8 @@ UavcanBatteryBridge::battery_sub_cb(const uavcan::ReceivedDataStructure<uavcan::
 	// _battery_status[instance].cycle_count = msg.;
 	_battery_status[instance].time_remaining_s = NAN;
 	// _battery_status[instance].average_time_to_empty = msg.;
-	_battery_status[instance].serial_number = msg.model_instance_id;
-	_battery_status[instance].id = msg.getSrcNodeID().get();
+	_battery_info[instance].id = _battery_status[instance].id = msg.getSrcNodeID().get();
+	itoa(msg.model_instance_id, _battery_info[instance].serial_number, 10);
 
 	if (_batt_update_mod[instance] == BatteryDataType::Raw) {
 		// Mavlink 2 needs individual cell voltages or cell[0] if cell voltages are not available.
@@ -135,10 +135,6 @@ UavcanBatteryBridge::battery_sub_cb(const uavcan::ReceivedDataStructure<uavcan::
 		// Set cell count to 1 so the the battery code in mavlink_messages.cpp copies the values correctly (hack?)
 		_battery_status[instance].cell_count = 1;
 	}
-
-	// _battery_status[instance].max_cell_voltage_delta = msg.;
-
-	// _battery_status[instance].is_powering_off = msg.;
 
 	determineWarning(_battery_status[instance].remaining);
 	_battery_status[instance].warning = _warning;
@@ -180,7 +176,6 @@ UavcanBatteryBridge::battery_aux_sub_cb(const uavcan::ReceivedDataStructure<ardu
 	_battery_status[instance].time_remaining_s = math::isZero(_battery_status[instance].current_a) ? 0 :
 			(_battery_status[instance].remaining_capacity_wh /
 			 _battery_status[instance].nominal_voltage / _battery_status[instance].current_a * 3600);
-	_battery_status[instance].is_powering_off = msg.is_powering_off;
 
 	for (uint8_t i = 0; i < _battery_status[instance].cell_count; i++) {
 		_battery_status[instance].voltage_cell_v[i] = msg.voltage_cell[i];
@@ -238,8 +233,8 @@ UavcanBatteryBridge::filterData(const uavcan::ReceivedDataStructure<uavcan::equi
 	/* Override data that is expected to arrive from UAVCAN msg*/
 	_battery_status[instance] = _battery[instance]->getBatteryStatus();
 	_battery_status[instance].temperature = msg.temperature + atmosphere::kAbsoluteNullCelsius; // Kelvin to Celsius
-	_battery_status[instance].serial_number = msg.model_instance_id;
 	_battery_status[instance].id = msg.getSrcNodeID().get(); // overwrite zeroed index from _battery
 
 	publish(msg.getSrcNodeID().get(), &_battery_status[instance]);
+	publish(msg.getSrcNodeID().get(), &_battery_info[instance]);
 }

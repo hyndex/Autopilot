@@ -38,6 +38,7 @@
 #pragma once
 
 #include "sensor_bridge.hpp"
+#include <uORB/topics/battery_info.h>
 #include <uORB/topics/battery_status.h>
 #include <uavcan/equipment/power/BatteryInfo.hpp>
 #include <ardupilot/equipment/power/BatteryInfoAux.hpp>
@@ -95,6 +96,7 @@ private:
 	float _discharged_mah_loop = 0.f;
 	uint8_t _warning;
 	hrt_abstime _last_timestamp;
+	battery_info_s _battery_info[battery_status_s::MAX_INSTANCES] {};
 	battery_status_s _battery_status[battery_status_s::MAX_INSTANCES] {};
 	BatteryDataType _batt_update_mod[battery_status_s::MAX_INSTANCES] {};
 

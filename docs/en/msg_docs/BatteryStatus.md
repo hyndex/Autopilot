@@ -27,7 +27,6 @@ uint8 priority					# Zero based priority is the connection on the Power Controll
 uint16 capacity					# actual capacity of the battery
 uint16 cycle_count				# number of discharge cycles the battery has experienced
 uint16 average_time_to_empty			# predicted remaining battery capacity based on the average rate of discharge in min
-uint16 serial_number				# serial number of the battery pack
 uint16 manufacture_date				# manufacture date, part of serial number of the battery pack. Formatted as: Day + Month×32 + (Year–1980)×512
 uint16 state_of_health				# state of health. FullChargeCapacity/DesignCapacity, 0-100%.
 uint16 max_error				# max error, expected margin of error in % in the state-of-charge calculation with a range of 1 to 100%
@@ -35,9 +34,7 @@ uint8 id					# ID number of a battery. Should be unique and consistent for the l
 uint16 interface_error				# interface error counter
 
 float32[14] voltage_cell_v			# Battery individual cell voltages, 0 if unknown
-float32 max_cell_voltage_delta			# Max difference between individual cell voltages
 
-bool is_powering_off				# Power off event imminent indication, false if unknown
 bool is_required				# Set if the battery is explicitly required before arming
 
 
